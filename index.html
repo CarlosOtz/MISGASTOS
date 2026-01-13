@@ -300,7 +300,7 @@
     <section id="viewHome">
       <div class="grid">
         <section class="card">
-          <h2>Resumen del mes</h2>
+          <h2>Resumen del mes (incluye fijos, MSI y pagos de deudas)</h2>
           <div class="content">
             <div class="big" id="monthTotal">$0</div>
             <div class="sub" id="monthSub">0 movimientos</div>
@@ -354,9 +354,11 @@
             <div class="sep"></div>
 
             <div class="row space">
-              <div class="hint">Tip: registra rápido con <b>+ Gasto</b>.</div>
-              <button class="btn ok small" id="btnGenFixedThisMonth" title="Genera los pagos fijos del mes como movimientos">
-                Generar fijos del mes
+              <div class="hint">
+                * Al abrir la app, se sincronizan automáticamente <b>fijos</b> y <b>MSI</b> del mes.
+              </div>
+              <button class="btn ok small" id="btnResyncMonth" title="Vuelve a intentar sincronizar fijos y MSI del mes">
+                Re-sincronizar mes
               </button>
             </div>
           </div>
@@ -380,8 +382,19 @@
         <h2>Gastos fijos</h2>
         <div class="content">
           <div class="row space">
-            <div class="hint">Ej: Netflix, Spotify, Teléfono…</div>
+            <div class="hint">Ej: Netflix, Spotify, Teléfono… (se generan como movimientos cada mes)</div>
             <button class="btn primary" id="btnAddFixed">+ Fijo</button>
+          </div>
+
+          <div class="kpiRow">
+            <div class="kpi">
+              <div class="label">Total mensual de fijos</div>
+              <div class="value" id="kpiFixedMonthly">$0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Cantidad de fijos</div>
+              <div class="value" id="kpiFixedCount">0</div>
+            </div>
           </div>
 
           <div class="sep"></div>
@@ -397,8 +410,19 @@
         <h2>Meses sin intereses (MSI)</h2>
         <div class="content">
           <div class="row space">
-            <div class="hint">Pagos mensuales y meses faltantes.</div>
+            <div class="hint">Los MSI se generan como movimientos del mes automáticamente.</div>
             <button class="btn primary" id="btnAddMSI">+ MSI</button>
+          </div>
+
+          <div class="kpiRow">
+            <div class="kpi">
+              <div class="label">Pago mensual total (MSI activos)</div>
+              <div class="value" id="kpiMSIMonthly">$0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Saldo restante (aprox)</div>
+              <div class="value" id="kpiMSIRemaining">$0</div>
+            </div>
           </div>
 
           <div class="sep"></div>
@@ -414,7 +438,10 @@
         <h2>Deudas</h2>
         <div class="content">
           <div class="row space">
-            <div class="hint">Controla “Yo debo” y “Me deben”, con fecha límite.</div>
+            <div class="hint">
+              Al marcar “Pagado”:
+              <b>Yo debo</b> se agrega como gasto del mes. <b>Me deben</b> se agrega como “recuperado” (monto negativo).
+            </div>
             <button class="btn primary" id="btnAddDebt">+ Deuda</button>
           </div>
 
@@ -524,11 +551,11 @@
         <div class="two">
           <div>
             <label>Nombre</label>
-            <input class="input" id="fixedName" placeholder="Ej: Netflix" />
+            <input class="input" id="fixedName" placeholder="Ej: Amazon" />
           </div>
           <div>
             <label>Monto</label>
-            <input class="input" id="fixedAmount" inputmode="decimal" placeholder="Ej: 199" />
+            <input class="input" id="fixedAmount" inputmode="decimal" placeholder="Ej: 99" />
           </div>
         </div>
 
@@ -552,7 +579,7 @@
         </div>
 
         <div class="hint" style="margin-top:10px">
-          * Puedes generar los fijos del mes desde Movimientos.
+          * Se agregará automáticamente al resumen del mes cuando abras la app.
         </div>
       </div>
     </div>
@@ -598,6 +625,10 @@
         <div class="right" style="margin-top:12px">
           <button class="btn" id="btnSaveMSI">Guardar</button>
         </div>
+
+        <div class="hint" style="margin-top:10px">
+          * Cada mes que abras la app, se registrará 1 pago del MSI (si aún faltan meses).
+        </div>
       </div>
     </div>
   </div>
@@ -640,18 +671,30 @@
           </div>
         </div>
 
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label>Método (cuando se pague / reciba)</label>
+            <select id="debtMethod">
+              <option value="cash">Efectivo</option>
+              <option value="debit">Débito</option>
+              <option value="credit">Crédito</option>
+            </select>
+          </div>
+          <div>
+            <label>Notas (opcional)</label>
+            <input class="input" id="debtNote" placeholder="Ej: me paga el viernes / te lo deposito…" />
+          </div>
+        </div>
+
         <label>Concepto</label>
         <input class="input" id="debtConcept" placeholder="Ej: comida, uber, compra…" />
-
-        <label>Notas (opcional)</label>
-        <input class="input" id="debtNote" placeholder="Ej: me paga el viernes / te lo deposito…" />
 
         <div class="right" style="margin-top:12px">
           <button class="btn" id="btnSaveDebt">Guardar</button>
         </div>
 
         <div class="hint" style="margin-top:10px">
-          * En Deudas podrás marcar “Pagado” para cerrarla.
+          * Al marcar “Pagado” se reflejará en el resumen mensual.
         </div>
       </div>
     </div>
@@ -697,10 +740,10 @@
     }
 
     /**************
-     * IndexedDB (v3: tx + fixed + msi + debts)
+     * IndexedDB
      **************/
-    const DB_NAME = "gastos_pwa_v3";
-    const DB_VER = 3;
+    const DB_NAME = "gastos_pwa_v4";
+    const DB_VER = 4;
     const STORE_TX = "tx";
     const STORE_FIXED = "fixed";
     const STORE_MSI = "msi";
@@ -818,6 +861,99 @@
     }
 
     /**************
+     * Monthly auto-sync (fijos + MSI)
+     **************/
+    function txExistsForSourceThisMonth(source, refId, mKey){
+      return txAll.some(t => t.source === source && t.refId === refId && t.month === mKey);
+    }
+
+    async function syncFixedForMonth(silent=true){
+      const mKey = currentMonthKey();
+      const { y, m } = currentYearMonth();
+      let created = 0;
+
+      for(const f of fixedAll.filter(x => x.active !== false)){
+        if(txExistsForSourceThisMonth("fixed", f.id, mKey)) continue;
+
+        const dateISO = `${y}-${pad2(m)}-${pad2(Math.min(f.day, 28))}`;
+        const obj = {
+          id: uid(),
+          type: "expense",
+          source: "fixed",
+          refId: f.id,
+          amount: f.amount,
+          concept: f.name,
+          dateISO,
+          month: mKey,
+          method: f.method,
+          payer: "me",
+          owner: "me",
+          note: "Generado (Fijo del mes)",
+          createdAt: Date.now()
+        };
+        await dbPut(STORE_TX, obj);
+        created++;
+      }
+      if(!silent && created) alert(`Se generaron ${created} fijo(s) del mes.`);
+      return created;
+    }
+
+    async function syncMSIForMonth(silent=true){
+      const mKey = currentMonthKey();
+      const dateISO = todayISO();
+      let created = 0;
+
+      for(const msi of msiAll.filter(x => x.active !== false)){
+        const remaining = Math.max(0, msi.totalMonths - msi.paidMonths);
+        if(remaining <= 0) continue;
+        if(txExistsForSourceThisMonth("msi", msi.id, mKey)) continue;
+
+        const tx = {
+          id: uid(),
+          type: "expense",
+          source: "msi",
+          refId: msi.id,
+          amount: msi.monthly,
+          concept: `${msi.name} (MSI)`,
+          dateISO,
+          month: mKey,
+          method: msi.method,
+          payer: "me",
+          owner: "me",
+          note: `Pago MSI ${msi.paidMonths+1}/${msi.totalMonths} (auto)`,
+          createdAt: Date.now()
+        };
+        await dbPut(STORE_TX, tx);
+
+        msi.paidMonths += 1;
+        await dbPut(STORE_MSI, msi);
+
+        created++;
+      }
+
+      if(!silent && created) alert(`Se registraron ${created} pago(s) MSI del mes.`);
+      return created;
+    }
+
+    async function syncMonthNow(silent=true){
+      // Recarga estado actual (por si venimos de importar)
+      txAll = await dbGetAll(STORE_TX);
+      fixedAll = await dbGetAll(STORE_FIXED);
+      msiAll = await dbGetAll(STORE_MSI);
+      debtAll = await dbGetAll(STORE_DEBTS);
+
+      const c1 = await syncFixedForMonth(true);
+      // refresca txAll antes de MSI para que el "exists" funcione bien
+      txAll = await dbGetAll(STORE_TX);
+      const c2 = await syncMSIForMonth(true);
+
+      await loadAll();
+      if(!silent) {
+        if(!c1 && !c2) alert("No había nada pendiente por sincronizar este mes.");
+      }
+    }
+
+    /**************
      * Home
      **************/
     function setMonthLabel(){
@@ -899,7 +1035,12 @@
         if(x.source && x.source !== "manual"){
           const t4 = document.createElement("span");
           t4.className = "tag";
-          t4.textContent = x.source === "fixed" ? "Fijo" : (x.source === "msi" ? "MSI" : x.source);
+          t4.textContent =
+            x.source === "fixed" ? "Fijo" :
+            x.source === "msi" ? "MSI" :
+            x.source === "debt_pay" ? "Deuda pagada" :
+            x.source === "debt_in" ? "Recuperado" :
+            x.source;
           top.appendChild(t4);
         }
 
@@ -984,9 +1125,14 @@
      * Fixed
      **************/
     function renderFixed(){
+      const active = fixedAll.filter(x => x.active !== false);
+      const totalMonthly = active.reduce((s,f)=>s+f.amount,0);
+
+      el("kpiFixedMonthly").textContent = fmtMoney(totalMonthly);
+      el("kpiFixedCount").textContent = String(active.length);
+
       const list = el("fixedList");
       list.innerHTML = "";
-      const active = fixedAll.filter(x => x.active !== false);
       el("fixedEmpty").style.display = active.length ? "none" : "block";
 
       for(const f of active){
@@ -1015,7 +1161,7 @@
 
         const meta = document.createElement("div");
         meta.className = "meta";
-        meta.textContent = "Se puede generar como movimiento del mes.";
+        meta.textContent = "Se reflejará en el Resumen mensual (auto).";
 
         left.appendChild(top);
         left.appendChild(meta);
@@ -1068,55 +1214,30 @@
 
       closeModal("modalFixed");
       await loadAll();
-      renderFixed();
-    }
 
-    function txExistsForFixedThisMonth(fixedId, mKey){
-      return txAll.some(t => t.source === "fixed" && t.refId === fixedId && t.month === mKey);
-    }
-
-    async function generateFixedThisMonth(){
-      const mKey = currentMonthKey();
-      const { y, m } = currentYearMonth();
-      let created = 0;
-
-      for(const f of fixedAll.filter(x => x.active !== false)){
-        if(txExistsForFixedThisMonth(f.id, mKey)) continue;
-
-        const dateISO = `${y}-${pad2(m)}-${pad2(Math.min(f.day, 28))}`;
-
-        const obj = {
-          id: uid(),
-          type: "expense",
-          source: "fixed",
-          refId: f.id,
-          amount: f.amount,
-          concept: f.name,
-          dateISO,
-          month: mKey,
-          method: f.method,
-          payer: "me",
-          owner: "me",
-          note: "Generado desde Gastos fijos",
-          createdAt: Date.now()
-        };
-
-        await dbPut(STORE_TX, obj);
-        created++;
-      }
-
-      await loadAll();
-      alert(created ? `Listo: se generaron ${created} fijo(s) para este mes.` : "No se generó nada (ya estaban generados o no hay fijos).");
-      renderHome();
+      // si agregaste un fijo nuevo, lo sincronizamos para el mes actual
+      await syncMonthNow(true);
     }
 
     /**************
      * MSI
      **************/
     function renderMSI(){
+      const active = msiAll.filter(x => x.active !== false);
+      const monthlyTotal = active
+        .filter(m => (m.totalMonths - m.paidMonths) > 0)
+        .reduce((s,m)=>s+m.monthly,0);
+
+      const remainingTotal = active.reduce((s,m)=>{
+        const rem = Math.max(0, m.totalMonths - m.paidMonths);
+        return s + (rem * m.monthly);
+      },0);
+
+      el("kpiMSIMonthly").textContent = fmtMoney(monthlyTotal);
+      el("kpiMSIRemaining").textContent = fmtMoney(remainingTotal);
+
       const list = el("msiList");
       list.innerHTML = "";
-      const active = msiAll.filter(x => x.active !== false);
       el("msiEmpty").style.display = active.length ? "none" : "block";
 
       for(const msi of active){
@@ -1152,7 +1273,7 @@
 
         const meta = document.createElement("div");
         meta.className = "meta";
-        meta.textContent = "“Pagar mes” agrega el movimiento del mes y avanza el contador.";
+        meta.textContent = "Cada mes se reflejará en el Resumen mensual (auto).";
 
         left.appendChild(top);
         left.appendChild(meta);
@@ -1163,12 +1284,6 @@
         const amt = document.createElement("div");
         amt.className = "amt";
         amt.textContent = fmtMoney(msi.monthly);
-
-        const pay = document.createElement("button");
-        pay.className = "btn small ok";
-        pay.textContent = "Pagar mes";
-        pay.disabled = remaining <= 0;
-        pay.onclick = async () => { await payMSIMonth(msi.id); };
 
         const del = document.createElement("button");
         del.className = "btn small danger";
@@ -1182,8 +1297,6 @@
         };
 
         right.appendChild(amt);
-        right.appendChild(document.createElement("div")).style.height = "8px";
-        right.appendChild(pay);
         right.appendChild(document.createElement("div")).style.height = "8px";
         right.appendChild(del);
 
@@ -1216,52 +1329,9 @@
 
       closeModal("modalMSI");
       await loadAll();
-      renderMSI();
-    }
 
-    function txExistsForMSIThisMonth(msiId, mKey){
-      return txAll.some(t => t.source === "msi" && t.refId === msiId && t.month === mKey);
-    }
-
-    async function payMSIMonth(msiId){
-      const mKey = currentMonthKey();
-      const msi = msiAll.find(x => x.id === msiId);
-      if(!msi) return;
-
-      if(txExistsForMSIThisMonth(msiId, mKey)){
-        alert("Ya registraste el pago de este MSI este mes.");
-        return;
-      }
-      if(msi.paidMonths >= msi.totalMonths){
-        alert("Ya está completado.");
-        return;
-      }
-
-      const dateISO = todayISO();
-
-      const tx = {
-        id: uid(),
-        type: "expense",
-        source: "msi",
-        refId: msiId,
-        amount: msi.monthly,
-        concept: `${msi.name} (MSI)`,
-        dateISO,
-        month: mKey,
-        method: msi.method,
-        payer: "me",
-        owner: "me",
-        note: `Pago MSI ${msi.paidMonths+1}/${msi.totalMonths}`,
-        createdAt: Date.now()
-      };
-      await dbPut(STORE_TX, tx);
-
-      msi.paidMonths += 1;
-      await dbPut(STORE_MSI, msi);
-
-      await loadAll();
-      renderMSI();
-      renderHome();
+      // si agregaste un MSI nuevo, lo sincronizamos para el mes actual (si aplica)
+      await syncMonthNow(true);
     }
 
     /**************
@@ -1290,31 +1360,25 @@
     }
 
     function renderDebts(){
-      // KPIs (pendientes)
       const pending = debtAll.filter(d => d.status !== "paid");
       const totalOwe = pending.filter(d => d.type === "owe").reduce((s,d)=>s+d.amount,0);
       const totalOwedToMe = pending.filter(d => d.type === "owedToMe").reduce((s,d)=>s+d.amount,0);
       el("kpiOwe").textContent = fmtMoney(totalOwe);
       el("kpiOwedToMe").textContent = fmtMoney(totalOwedToMe);
 
-      // Filter list
       let listData = [...debtAll];
-
       if(debtFilter === "owe") listData = listData.filter(d => d.type === "owe");
       if(debtFilter === "owedToMe") listData = listData.filter(d => d.type === "owedToMe");
       if(debtFilter === "pending") listData = listData.filter(d => d.status !== "paid");
       if(debtFilter === "paid") listData = listData.filter(d => d.status === "paid");
 
-      // Sort: pending first, then due date
       listData.sort((a,b) => {
         const ap = a.status === "paid" ? 1 : 0;
         const bp = b.status === "paid" ? 1 : 0;
         if(ap !== bp) return ap - bp;
-
         const ad = a.dueDateISO || "9999-99-99";
         const bd = b.dueDateISO || "9999-99-99";
         if(ad !== bd) return ad.localeCompare(bd);
-
         return (b.createdAt||0) - (a.createdAt||0);
       });
 
@@ -1379,11 +1443,57 @@
         btnPay.textContent = d.status === "paid" ? "Pagada" : "Marcar pagado";
         btnPay.disabled = d.status === "paid";
         btnPay.onclick = async () => {
+          // 1) marcar deuda pagada
           d.status = "paid";
           d.paidAt = Date.now();
           await dbPut(STORE_DEBTS, d);
+
+          // 2) crear movimiento para que se refleje en el resumen mensual
+          const mKey = currentMonthKey();
+          const dateISO = todayISO();
+          const method = d.method || "cash";
+
+          if(d.type === "owe"){
+            // pagar (gasto)
+            const tx = {
+              id: uid(),
+              type: "expense",
+              source: "debt_pay",
+              refId: d.id,
+              amount: d.amount,
+              concept: `Pago deuda: ${PERSON[d.person] || d.person} - ${d.concept}`,
+              dateISO,
+              month: mKey,
+              method,
+              payer: "me",
+              owner: "me",
+              note: "Pago de deuda (marcada pagada)",
+              createdAt: Date.now()
+            };
+            await dbPut(STORE_TX, tx);
+          } else {
+            // dinero recuperado (lo metemos como monto negativo para que se refleje)
+            const tx = {
+              id: uid(),
+              type: "expense",
+              source: "debt_in",
+              refId: d.id,
+              amount: -Math.abs(d.amount),
+              concept: `Recuperado: ${PERSON[d.person] || d.person} - ${d.concept}`,
+              dateISO,
+              month: mKey,
+              method,
+              payer: "me",
+              owner: "me",
+              note: "Pago recibido (me debían)",
+              createdAt: Date.now()
+            };
+            await dbPut(STORE_TX, tx);
+          }
+
           await loadAll();
           renderDebts();
+          renderHome();
         };
 
         const del = document.createElement("button");
@@ -1411,25 +1521,27 @@
     }
 
     async function saveDebt(){
-      const type = el("debtType").value; // owe | owedToMe
+      const type = el("debtType").value;
       const person = el("debtPerson").value;
       const amount = parseAmount(el("debtAmount").value);
       const dueDateISO = el("debtDue").value || "";
       const concept = el("debtConcept").value.trim();
       const note = el("debtNote").value.trim();
+      const method = el("debtMethod").value;
 
       if(!Number.isFinite(amount) || amount <= 0){ alert("Monto inválido."); return; }
       if(!concept){ alert("Pon un concepto."); return; }
 
       const obj = {
         id: uid(),
-        type,                 // owe | owedToMe
-        person,               // mom | sis | partner | other
+        type,
+        person,
         amount,
         concept,
         dueDateISO: dueDateISO || null,
-        status: "pending",    // pending | paid
+        status: "pending",
         note,
+        method,
         createdAt: Date.now(),
         paidAt: null
       };
@@ -1440,6 +1552,7 @@
       el("debtDue").value = "";
       el("debtConcept").value = "";
       el("debtNote").value = "";
+      el("debtMethod").value = "cash";
       el("debtType").value = "owe";
       el("debtPerson").value = "mom";
 
@@ -1454,7 +1567,7 @@
     async function exportBackup(){
       const payload = {
         app: "MisGastosPWA",
-        version: 3,
+        version: 4,
         exportedAt: new Date().toISOString(),
         data: {
           tx: await dbGetAll(STORE_TX),
@@ -1518,6 +1631,7 @@
       }
 
       await loadAll();
+      await syncMonthNow(true);
       alert("Listo: respaldo importado.");
       renderHome();
     }
@@ -1537,7 +1651,6 @@
       msiAll = await dbGetAll(STORE_MSI);
       debtAll = await dbGetAll(STORE_DEBTS);
 
-      // re-render visible view
       if(!el("viewHome").classList.contains("hidden")) renderHome();
       if(!el("viewFixed").classList.contains("hidden")) renderFixed();
       if(!el("viewMSI").classList.contains("hidden")) renderMSI();
@@ -1564,6 +1677,9 @@
       await loadAll();
       await registerSW();
 
+      // Auto sync at startup (fijos + MSI del mes)
+      await syncMonthNow(true);
+
       // Drawer
       el("btnMenu").onclick = openDrawer;
       el("btnCloseMenu").onclick = closeDrawer;
@@ -1584,7 +1700,10 @@
       el("fMethod").addEventListener("change", renderHome);
       el("fOwner").addEventListener("change", renderHome);
 
-      el("btnGenFixedThisMonth").onclick = generateFixedThisMonth;
+      el("btnResyncMonth").onclick = async () => {
+        await syncMonthNow(false);
+        renderHome();
+      };
 
       // Fixed
       el("btnAddFixed").onclick = () => openModal("modalFixed");
@@ -1629,7 +1748,7 @@
         setActiveNav("navHome");
       };
 
-      // initial view
+      // initial render
       renderHome();
     })();
   </script>
