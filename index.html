@@ -122,6 +122,11 @@
       border:1px solid var(--border); color:var(--muted);
       background: rgba(0,0,0,.10);
     }
+    .tag.warn{
+      border-color: rgba(255,107,107,.35);
+      background: rgba(255,107,107,.10);
+      color: var(--text);
+    }
     .amt{font-weight:900; font-size:16px}
     .meta{font-size:12px; color:var(--muted); margin-top:4px}
     .sep{height:1px; background: var(--border); margin:10px 0}
@@ -139,7 +144,7 @@
     .kpi .label{font-size:12px; color:var(--muted)}
     .kpi .value{font-weight:900; margin-top:6px}
 
-    /* Drawer (menu plegable) */
+    /* Drawer */
     .drawerOverlay{
       position:fixed; inset:0;
       background: rgba(0,0,0,.55);
@@ -206,7 +211,6 @@
       overflow:hidden;
     }
     .panel header{
-      position:relative;
       background: transparent;
       border-bottom:1px solid var(--border);
       padding: 12px 14px;
@@ -215,6 +219,22 @@
     .right{display:flex; justify-content:flex-end; gap:10px}
 
     .hidden{display:none !important}
+
+    .chipRow{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-weight:800;
+      cursor:pointer;
+      font-size:12px;
+    }
+    .chip.active{
+      border-color: rgba(122,162,255,.65);
+      background: rgba(122,162,255,.12);
+    }
   </style>
 </head>
 
@@ -258,6 +278,11 @@
     <button class="navBtn" id="navMSI">
       Meses sin intereses
       <div class="navSub">Cuotas y meses faltantes</div>
+    </button>
+
+    <button class="navBtn" id="navDebts">
+      Deudas
+      <div class="navSub">Yo debo / Me deben + fecha límite</div>
     </button>
 
     <div class="sep"></div>
@@ -355,7 +380,7 @@
         <h2>Gastos fijos</h2>
         <div class="content">
           <div class="row space">
-            <div class="hint">Ej: Netflix, Spotify, Teléfono… (se pueden generar como movimiento cada mes)</div>
+            <div class="hint">Ej: Netflix, Spotify, Teléfono…</div>
             <button class="btn primary" id="btnAddFixed">+ Fijo</button>
           </div>
 
@@ -372,13 +397,54 @@
         <h2>Meses sin intereses (MSI)</h2>
         <div class="content">
           <div class="row space">
-            <div class="hint">Aquí llevas pagos mensuales y cuántos meses faltan.</div>
+            <div class="hint">Pagos mensuales y meses faltantes.</div>
             <button class="btn primary" id="btnAddMSI">+ MSI</button>
           </div>
 
           <div class="sep"></div>
           <div class="list" id="msiList"></div>
           <div class="hint" id="msiEmpty" style="display:none;margin-top:10px">Aún no agregas compras a meses.</div>
+        </div>
+      </section>
+    </section>
+
+    <!-- VIEW: DEBTS -->
+    <section id="viewDebts" class="hidden">
+      <section class="card">
+        <h2>Deudas</h2>
+        <div class="content">
+          <div class="row space">
+            <div class="hint">Controla “Yo debo” y “Me deben”, con fecha límite.</div>
+            <button class="btn primary" id="btnAddDebt">+ Deuda</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="chipRow">
+            <button class="chip active" id="chipAll">Todas</button>
+            <button class="chip" id="chipOwe">Yo debo</button>
+            <button class="chip" id="chipOwedToMe">Me deben</button>
+            <button class="chip" id="chipPending">Pendientes</button>
+            <button class="chip" id="chipPaid">Pagadas</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="kpiRow">
+            <div class="kpi">
+              <div class="label">Total que debo (pendiente)</div>
+              <div class="value" id="kpiOwe">$0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Total que me deben (pendiente)</div>
+              <div class="value" id="kpiOwedToMe">$0</div>
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="list" id="debtList"></div>
+          <div class="hint" id="debtEmpty" style="display:none;margin-top:10px">Aún no registras deudas.</div>
         </div>
       </section>
     </section>
@@ -486,7 +552,7 @@
         </div>
 
         <div class="hint" style="margin-top:10px">
-          * Luego puedes darle “Generar fijos del mes” para que se agreguen como movimientos.
+          * Puedes generar los fijos del mes desde Movimientos.
         </div>
       </div>
     </div>
@@ -532,15 +598,66 @@
         <div class="right" style="margin-top:12px">
           <button class="btn" id="btnSaveMSI">Guardar</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Debt -->
+  <div class="modal" id="modalDebt">
+    <div class="panel">
+      <header class="row space">
+        <div class="title">Agregar deuda</div>
+        <button class="btn small ghost" id="btnCloseDebt">Cerrar</button>
+      </header>
+      <div class="body">
+        <div class="two">
+          <div>
+            <label>Tipo</label>
+            <select id="debtType">
+              <option value="owe">Yo debo</option>
+              <option value="owedToMe">Me deben</option>
+            </select>
+          </div>
+          <div>
+            <label>Persona</label>
+            <select id="debtPerson">
+              <option value="mom">Mamá</option>
+              <option value="sis">Hermana</option>
+              <option value="partner">Pareja</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label>Monto</label>
+            <input class="input" id="debtAmount" inputmode="decimal" placeholder="Ej: 500" />
+          </div>
+          <div>
+            <label>Fecha límite (opcional)</label>
+            <input class="input" id="debtDue" type="date" />
+          </div>
+        </div>
+
+        <label>Concepto</label>
+        <input class="input" id="debtConcept" placeholder="Ej: comida, uber, compra…" />
+
+        <label>Notas (opcional)</label>
+        <input class="input" id="debtNote" placeholder="Ej: me paga el viernes / te lo deposito…" />
+
+        <div class="right" style="margin-top:12px">
+          <button class="btn" id="btnSaveDebt">Guardar</button>
+        </div>
 
         <div class="hint" style="margin-top:10px">
-          * El botón “Pagar mes” agregará un movimiento de este mes y avanzará 1 mes pagado.
+          * En Deudas podrás marcar “Pagado” para cerrarla.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Import file input (hidden) -->
+  <!-- Import file input -->
   <input type="file" id="file" accept="application/json" style="display:none" />
 
   <script>
@@ -571,14 +688,23 @@
     };
     const uid = () => `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
+    function daysUntil(dateISO){
+      if(!dateISO) return null;
+      const now = new Date();
+      const d = new Date(dateISO + "T00:00:00");
+      const diff = d.getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      return Math.floor(diff / (1000*60*60*24));
+    }
+
     /**************
-     * IndexedDB (v2: tx + fixed + msi)
+     * IndexedDB (v3: tx + fixed + msi + debts)
      **************/
-    const DB_NAME = "gastos_pwa_v2";
-    const DB_VER = 2;
+    const DB_NAME = "gastos_pwa_v3";
+    const DB_VER = 3;
     const STORE_TX = "tx";
     const STORE_FIXED = "fixed";
     const STORE_MSI = "msi";
+    const STORE_DEBTS = "debts";
 
     let db;
 
@@ -601,6 +727,12 @@
           if(!db.objectStoreNames.contains(STORE_MSI)){
             const os = db.createObjectStore(STORE_MSI, { keyPath: "id" });
             os.createIndex("by_active", "active", { unique:false });
+          }
+          if(!db.objectStoreNames.contains(STORE_DEBTS)){
+            const os = db.createObjectStore(STORE_DEBTS, { keyPath: "id" });
+            os.createIndex("by_status", "status", { unique:false });
+            os.createIndex("by_type", "type", { unique:false });
+            os.createIndex("by_due", "dueDateISO", { unique:false });
           }
         };
 
@@ -635,6 +767,7 @@
         new Promise((res, rej)=>{ const r=db.transaction(STORE_TX,"readwrite").objectStore(STORE_TX).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
         new Promise((res, rej)=>{ const r=db.transaction(STORE_FIXED,"readwrite").objectStore(STORE_FIXED).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
         new Promise((res, rej)=>{ const r=db.transaction(STORE_MSI,"readwrite").objectStore(STORE_MSI).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
+        new Promise((res, rej)=>{ const r=db.transaction(STORE_DEBTS,"readwrite").objectStore(STORE_DEBTS).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
       ]);
     }
 
@@ -644,6 +777,9 @@
     let txAll = [];
     let fixedAll = [];
     let msiAll = [];
+    let debtAll = [];
+
+    let debtFilter = "all"; // all | owe | owedToMe | pending | paid
 
     /**************
      * Drawer navigation
@@ -658,17 +794,19 @@
     }
 
     function setActiveNav(nav){
-      const navs = ["navHome","navFixed","navMSI"];
+      const navs = ["navHome","navFixed","navMSI","navDebts"];
       navs.forEach(id => el(id).classList.toggle("active", id === nav));
 
       el("viewHome").classList.toggle("hidden", nav !== "navHome");
       el("viewFixed").classList.toggle("hidden", nav !== "navFixed");
       el("viewMSI").classList.toggle("hidden", nav !== "navMSI");
+      el("viewDebts").classList.toggle("hidden", nav !== "navDebts");
 
       const title =
         nav === "navHome" ? "Mis Gastos" :
         nav === "navFixed" ? "Gastos fijos" :
-        "Meses sin intereses";
+        nav === "navMSI" ? "Meses sin intereses" :
+        "Deudas";
 
       el("headerTitle").textContent = title;
       closeDrawer();
@@ -676,10 +814,11 @@
       if(nav === "navFixed") renderFixed();
       if(nav === "navMSI") renderMSI();
       if(nav === "navHome") renderHome();
+      if(nav === "navDebts") renderDebts();
     }
 
     /**************
-     * Home (movimientos)
+     * Home
      **************/
     function setMonthLabel(){
       const now = new Date();
@@ -752,17 +891,17 @@
         t3.className = "tag";
         t3.textContent = `Fue de: ${PERSON[x.owner] || x.owner}`;
 
-        if(x.source){
+        top.appendChild(concept);
+        top.appendChild(t1);
+        top.appendChild(t2);
+        top.appendChild(t3);
+
+        if(x.source && x.source !== "manual"){
           const t4 = document.createElement("span");
           t4.className = "tag";
           t4.textContent = x.source === "fixed" ? "Fijo" : (x.source === "msi" ? "MSI" : x.source);
           top.appendChild(t4);
         }
-
-        top.appendChild(concept);
-        top.appendChild(t1);
-        top.appendChild(t2);
-        top.appendChild(t3);
 
         const meta = document.createElement("div");
         meta.className = "meta";
@@ -842,7 +981,7 @@
     }
 
     /**************
-     * Fixed expenses
+     * Fixed
      **************/
     function renderFixed(){
       const list = el("fixedList");
@@ -876,7 +1015,7 @@
 
         const meta = document.createElement("div");
         meta.className = "meta";
-        meta.textContent = "Se puede generar como movimiento del mes con un botón.";
+        meta.textContent = "Se puede generar como movimiento del mes.";
 
         left.appendChild(top);
         left.appendChild(meta);
@@ -919,16 +1058,7 @@
       if(!Number.isFinite(amount) || amount <= 0){ alert("Monto inválido."); return; }
       if(!Number.isFinite(day) || day < 1 || day > 31){ alert("Día inválido (1-31)."); return; }
 
-      const obj = {
-        id: uid(),
-        name,
-        amount,
-        day,
-        method,
-        active: true,
-        createdAt: Date.now()
-      };
-
+      const obj = { id: uid(), name, amount, day, method, active:true, createdAt: Date.now() };
       await dbPut(STORE_FIXED, obj);
 
       el("fixedName").value = "";
@@ -948,13 +1078,11 @@
     async function generateFixedThisMonth(){
       const mKey = currentMonthKey();
       const { y, m } = currentYearMonth();
-
       let created = 0;
 
       for(const f of fixedAll.filter(x => x.active !== false)){
         if(txExistsForFixedThisMonth(f.id, mKey)) continue;
 
-        const day = Math.min(Math.max(f.day,1), 28) + (f.day > 28 ? 0 : 0); // simple iOS-safe (evita días raros)
         const dateISO = `${y}-${pad2(m)}-${pad2(Math.min(f.day, 28))}`;
 
         const obj = {
@@ -1040,9 +1168,7 @@
         pay.className = "btn small ok";
         pay.textContent = "Pagar mes";
         pay.disabled = remaining <= 0;
-        pay.onclick = async () => {
-          await payMSIMonth(msi.id);
-        };
+        pay.onclick = async () => { await payMSIMonth(msi.id); };
 
         const del = document.createElement("button");
         del.className = "btn small danger";
@@ -1079,17 +1205,7 @@
       if(!Number.isFinite(totalMonths) || totalMonths <= 0){ alert("Meses totales inválidos."); return; }
       if(!Number.isFinite(paidMonths) || paidMonths < 0 || paidMonths > totalMonths){ alert("Meses pagados inválidos."); return; }
 
-      const obj = {
-        id: uid(),
-        name,
-        monthly,
-        totalMonths,
-        paidMonths,
-        method,
-        active: true,
-        createdAt: Date.now()
-      };
-
+      const obj = { id: uid(), name, monthly, totalMonths, paidMonths, method, active:true, createdAt: Date.now() };
       await dbPut(STORE_MSI, obj);
 
       el("msiName").value = "";
@@ -1116,7 +1232,6 @@
         alert("Ya registraste el pago de este MSI este mes.");
         return;
       }
-
       if(msi.paidMonths >= msi.totalMonths){
         alert("Ya está completado.");
         return;
@@ -1124,7 +1239,6 @@
 
       const dateISO = todayISO();
 
-      // 1) create movement
       const tx = {
         id: uid(),
         type: "expense",
@@ -1142,7 +1256,6 @@
       };
       await dbPut(STORE_TX, tx);
 
-      // 2) update MSI paidMonths
       msi.paidMonths += 1;
       await dbPut(STORE_MSI, msi);
 
@@ -1152,17 +1265,202 @@
     }
 
     /**************
+     * Debts
+     **************/
+    function setDebtChips(activeId){
+      const ids = ["chipAll","chipOwe","chipOwedToMe","chipPending","chipPaid"];
+      ids.forEach(id => el(id).classList.toggle("active", id === activeId));
+      debtFilter =
+        activeId === "chipOwe" ? "owe" :
+        activeId === "chipOwedToMe" ? "owedToMe" :
+        activeId === "chipPending" ? "pending" :
+        activeId === "chipPaid" ? "paid" :
+        "all";
+      renderDebts();
+    }
+
+    function debtBadgeForDue(d){
+      if(d.status === "paid") return null;
+      const left = daysUntil(d.dueDateISO);
+      if(left === null) return null;
+      if(left < 0) return `Vencida (${Math.abs(left)}d)`;
+      if(left === 0) return "Vence hoy";
+      if(left <= 3) return `Vence en ${left}d`;
+      return null;
+    }
+
+    function renderDebts(){
+      // KPIs (pendientes)
+      const pending = debtAll.filter(d => d.status !== "paid");
+      const totalOwe = pending.filter(d => d.type === "owe").reduce((s,d)=>s+d.amount,0);
+      const totalOwedToMe = pending.filter(d => d.type === "owedToMe").reduce((s,d)=>s+d.amount,0);
+      el("kpiOwe").textContent = fmtMoney(totalOwe);
+      el("kpiOwedToMe").textContent = fmtMoney(totalOwedToMe);
+
+      // Filter list
+      let listData = [...debtAll];
+
+      if(debtFilter === "owe") listData = listData.filter(d => d.type === "owe");
+      if(debtFilter === "owedToMe") listData = listData.filter(d => d.type === "owedToMe");
+      if(debtFilter === "pending") listData = listData.filter(d => d.status !== "paid");
+      if(debtFilter === "paid") listData = listData.filter(d => d.status === "paid");
+
+      // Sort: pending first, then due date
+      listData.sort((a,b) => {
+        const ap = a.status === "paid" ? 1 : 0;
+        const bp = b.status === "paid" ? 1 : 0;
+        if(ap !== bp) return ap - bp;
+
+        const ad = a.dueDateISO || "9999-99-99";
+        const bd = b.dueDateISO || "9999-99-99";
+        if(ad !== bd) return ad.localeCompare(bd);
+
+        return (b.createdAt||0) - (a.createdAt||0);
+      });
+
+      const list = el("debtList");
+      list.innerHTML = "";
+      el("debtEmpty").style.display = debtAll.length ? "none" : "block";
+
+      for(const d of listData){
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const left = document.createElement("div");
+        const top = document.createElement("div");
+        top.className = "top";
+
+        const concept = document.createElement("div");
+        concept.style.fontWeight = "900";
+        concept.textContent = d.concept || "(sin concepto)";
+
+        const t1 = document.createElement("span");
+        t1.className = "tag";
+        t1.textContent = d.type === "owe" ? "Yo debo" : "Me deben";
+
+        const t2 = document.createElement("span");
+        t2.className = "tag";
+        t2.textContent = PERSON[d.person] || d.person;
+
+        const t3 = document.createElement("span");
+        t3.className = "tag";
+        t3.textContent = d.status === "paid" ? "Pagada" : "Pendiente";
+
+        top.appendChild(concept);
+        top.appendChild(t1);
+        top.appendChild(t2);
+        top.appendChild(t3);
+
+        const badge = debtBadgeForDue(d);
+        if(badge){
+          const t4 = document.createElement("span");
+          t4.className = "tag warn";
+          t4.textContent = badge;
+          top.appendChild(t4);
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const due = d.dueDateISO ? new Date(d.dueDateISO + "T00:00:00").toLocaleDateString("es-MX",{ day:"2-digit", month:"short", year:"numeric" }) : "Sin fecha límite";
+        meta.textContent = `Límite: ${due}${d.note ? " · " + d.note : ""}`;
+
+        left.appendChild(top);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.style.textAlign = "right";
+
+        const amt = document.createElement("div");
+        amt.className = "amt";
+        amt.textContent = fmtMoney(d.amount);
+
+        const btnPay = document.createElement("button");
+        btnPay.className = "btn small ok";
+        btnPay.textContent = d.status === "paid" ? "Pagada" : "Marcar pagado";
+        btnPay.disabled = d.status === "paid";
+        btnPay.onclick = async () => {
+          d.status = "paid";
+          d.paidAt = Date.now();
+          await dbPut(STORE_DEBTS, d);
+          await loadAll();
+          renderDebts();
+        };
+
+        const del = document.createElement("button");
+        del.className = "btn small danger";
+        del.textContent = "Eliminar";
+        del.onclick = async () => {
+          if(confirm("¿Eliminar esta deuda?")){
+            await dbDel(STORE_DEBTS, d.id);
+            await loadAll();
+            renderDebts();
+          }
+        };
+
+        right.appendChild(amt);
+        right.appendChild(document.createElement("div")).style.height = "8px";
+        right.appendChild(btnPay);
+        right.appendChild(document.createElement("div")).style.height = "8px";
+        right.appendChild(del);
+
+        div.appendChild(left);
+        div.appendChild(right);
+
+        list.appendChild(div);
+      }
+    }
+
+    async function saveDebt(){
+      const type = el("debtType").value; // owe | owedToMe
+      const person = el("debtPerson").value;
+      const amount = parseAmount(el("debtAmount").value);
+      const dueDateISO = el("debtDue").value || "";
+      const concept = el("debtConcept").value.trim();
+      const note = el("debtNote").value.trim();
+
+      if(!Number.isFinite(amount) || amount <= 0){ alert("Monto inválido."); return; }
+      if(!concept){ alert("Pon un concepto."); return; }
+
+      const obj = {
+        id: uid(),
+        type,                 // owe | owedToMe
+        person,               // mom | sis | partner | other
+        amount,
+        concept,
+        dueDateISO: dueDateISO || null,
+        status: "pending",    // pending | paid
+        note,
+        createdAt: Date.now(),
+        paidAt: null
+      };
+
+      await dbPut(STORE_DEBTS, obj);
+
+      el("debtAmount").value = "";
+      el("debtDue").value = "";
+      el("debtConcept").value = "";
+      el("debtNote").value = "";
+      el("debtType").value = "owe";
+      el("debtPerson").value = "mom";
+
+      closeModal("modalDebt");
+      await loadAll();
+      renderDebts();
+    }
+
+    /**************
      * Export / Import
      **************/
     async function exportBackup(){
       const payload = {
         app: "MisGastosPWA",
-        version: 2,
+        version: 3,
         exportedAt: new Date().toISOString(),
         data: {
           tx: await dbGetAll(STORE_TX),
           fixed: await dbGetAll(STORE_FIXED),
-          msi: await dbGetAll(STORE_MSI)
+          msi: await dbGetAll(STORE_MSI),
+          debts: await dbGetAll(STORE_DEBTS)
         }
       };
 
@@ -1188,8 +1486,8 @@
       catch{ alert("Ese archivo no es JSON válido."); return; }
 
       const data = payload?.data;
-      if(!data || !Array.isArray(data.tx) || !Array.isArray(data.fixed) || !Array.isArray(data.msi)){
-        alert("Respaldo inválido (faltan tx/fixed/msi).");
+      if(!data || !Array.isArray(data.tx) || !Array.isArray(data.fixed) || !Array.isArray(data.msi) || !Array.isArray(data.debts)){
+        alert("Respaldo inválido (faltan tx/fixed/msi/debts).");
         return;
       }
 
@@ -1213,6 +1511,11 @@
           await dbPut(STORE_MSI, obj);
         }
       }
+      for(const obj of data.debts){
+        if(obj && obj.id && obj.type && typeof obj.amount === "number"){
+          await dbPut(STORE_DEBTS, obj);
+        }
+      }
 
       await loadAll();
       alert("Listo: respaldo importado.");
@@ -1226,12 +1529,19 @@
     function closeModal(id){ el(id).classList.remove("open"); }
 
     /**************
-     * Load all + render current view
+     * Load all
      **************/
     async function loadAll(){
       txAll = await dbGetAll(STORE_TX);
       fixedAll = await dbGetAll(STORE_FIXED);
       msiAll = await dbGetAll(STORE_MSI);
+      debtAll = await dbGetAll(STORE_DEBTS);
+
+      // re-render visible view
+      if(!el("viewHome").classList.contains("hidden")) renderHome();
+      if(!el("viewFixed").classList.contains("hidden")) renderFixed();
+      if(!el("viewMSI").classList.contains("hidden")) renderMSI();
+      if(!el("viewDebts").classList.contains("hidden")) renderDebts();
     }
 
     /**************
@@ -1248,7 +1558,6 @@
      **************/
     (async function init(){
       setMonthLabel();
-
       el("date").value = todayISO();
 
       db = await openDB();
@@ -1263,8 +1572,9 @@
       el("navHome").onclick = () => setActiveNav("navHome");
       el("navFixed").onclick = () => setActiveNav("navFixed");
       el("navMSI").onclick = () => setActiveNav("navMSI");
+      el("navDebts").onclick = () => setActiveNav("navDebts");
 
-      // Home events
+      // Home
       el("btnAdd").onclick = () => openModal("modalExpense");
       el("btnCloseExpense").onclick = () => closeModal("modalExpense");
       el("modalExpense").addEventListener("click", (e)=>{ if(e.target === el("modalExpense")) closeModal("modalExpense"); });
@@ -1276,17 +1586,29 @@
 
       el("btnGenFixedThisMonth").onclick = generateFixedThisMonth;
 
-      // Fixed modal
+      // Fixed
       el("btnAddFixed").onclick = () => openModal("modalFixed");
       el("btnCloseFixed").onclick = () => closeModal("modalFixed");
       el("modalFixed").addEventListener("click", (e)=>{ if(e.target === el("modalFixed")) closeModal("modalFixed"); });
       el("btnSaveFixed").onclick = saveFixed;
 
-      // MSI modal
+      // MSI
       el("btnAddMSI").onclick = () => openModal("modalMSI");
       el("btnCloseMSI").onclick = () => closeModal("modalMSI");
       el("modalMSI").addEventListener("click", (e)=>{ if(e.target === el("modalMSI")) closeModal("modalMSI"); });
       el("btnSaveMSI").onclick = saveMSI;
+
+      // Debts
+      el("btnAddDebt").onclick = () => openModal("modalDebt");
+      el("btnCloseDebt").onclick = () => closeModal("modalDebt");
+      el("modalDebt").addEventListener("click", (e)=>{ if(e.target === el("modalDebt")) closeModal("modalDebt"); });
+      el("btnSaveDebt").onclick = saveDebt;
+
+      el("chipAll").onclick = () => setDebtChips("chipAll");
+      el("chipOwe").onclick = () => setDebtChips("chipOwe");
+      el("chipOwedToMe").onclick = () => setDebtChips("chipOwedToMe");
+      el("chipPending").onclick = () => setDebtChips("chipPending");
+      el("chipPaid").onclick = () => setDebtChips("chipPaid");
 
       // Export/Import
       el("btnExport").onclick = exportBackup;
@@ -1300,15 +1622,14 @@
 
       // Clear all
       el("btnClearAll").onclick = async () => {
-        const ok = confirm("Esto borra TODO (movimientos, fijos y MSI) en este dispositivo.\n¿Seguro?");
+        const ok = confirm("Esto borra TODO (movimientos, fijos, MSI y deudas) en este dispositivo.\n¿Seguro?");
         if(!ok) return;
         await dbClearAll();
         await loadAll();
         setActiveNav("navHome");
-        renderHome();
       };
 
-      // Initial render
+      // initial view
       renderHome();
     })();
   </script>
