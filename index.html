@@ -21,22 +21,39 @@
       --border:rgba(255,255,255,.10);
       --shadow: 0 12px 30px rgba(0,0,0,.35);
       --radius:16px;
+
+      /* iPhone safe areas */
+      --sat: env(safe-area-inset-top);
+      --sab: env(safe-area-inset-bottom);
     }
+
     *{box-sizing:border-box}
+
+    html, body{
+      height:100%;
+    }
+
     body{
       margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background: radial-gradient(1000px 700px at 40% -10%, rgba(122,162,255,.20), transparent 55%),
                   radial-gradient(900px 600px at 110% 30%, rgba(61,220,151,.12), transparent 55%),
                   var(--bg);
       color:var(--text);
+
+      /* (opcional) suaviza el “bounce” visual en iOS */
+      overscroll-behavior-y: none;
     }
+
     header{
       position:sticky; top:0; z-index:10;
       background: rgba(11,18,32,.75);
       backdrop-filter: blur(14px);
       border-bottom:1px solid var(--border);
-      padding: 14px 14px 10px;
+
+      /* ✅ FIX iPhone 15 Pro Max (PWA): respeta notch/status bar */
+      padding: calc(14px + var(--sat)) 14px 10px;
     }
+
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     .space{justify-content:space-between}
     .title{font-weight:800; letter-spacing:.2px; font-size:18px}
@@ -44,7 +61,13 @@
       padding:8px 10px; border:1px solid var(--border); border-radius:999px;
       color:var(--muted); font-size:12px;
     }
-    main{padding:14px; max-width:980px; margin:0 auto}
+
+    main{
+      padding:14px;
+      padding-bottom: calc(14px + var(--sab));
+      max-width:980px; margin:0 auto
+    }
+
     .grid{display:grid; gap:12px; grid-template-columns: 1fr;}
     @media (min-width: 820px){ .grid{grid-template-columns: 1.2fr .8fr} }
 
@@ -63,6 +86,7 @@
 
     .big{font-size:34px; font-weight:900; line-height:1.05; letter-spacing:-.4px;}
     .sub{color:var(--muted); font-size:12px; margin-top:6px}
+
     .btn{
       border:1px solid var(--border);
       background: rgba(255,255,255,.06);
@@ -73,6 +97,8 @@
       cursor:pointer;
       transition: transform .05s ease;
       user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .btn:active{transform: scale(.99)}
     .btn.primary{
@@ -150,6 +176,7 @@
       background: rgba(0,0,0,.55);
       display:none;
       z-index:200;
+      touch-action: none; /* evita scroll raro atrás del drawer en iOS */
     }
     .drawerOverlay.open{display:block}
     .drawer{
@@ -161,8 +188,14 @@
       transform: translateX(-102%);
       transition: transform .18s ease;
       z-index:210;
-      padding: 14px;
+
+      /* ✅ FIX safe-area (PWA) */
+      padding: calc(14px + var(--sat)) 14px calc(14px + var(--sab));
       display:flex; flex-direction:column; gap:10px;
+
+      /* mejora scroll interno si el menú es largo */
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
     }
     .drawer.open{transform: translateX(0)}
     .navBtn{
@@ -175,6 +208,7 @@
       color:var(--text);
       font-weight:800;
       cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
     }
     .navBtn.active{
       border-color: rgba(122,162,255,.65);
@@ -188,6 +222,8 @@
       border:1px solid var(--border);
       background: rgba(255,255,255,.06);
       cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .hamburger span{font-size:20px; line-height:0}
 
@@ -196,6 +232,7 @@
       position:fixed; inset:0; display:none;
       background: rgba(0,0,0,.55);
       padding: 16px;
+      padding-bottom: calc(16px + var(--sab)); /* ✅ safe-area abajo */
       z-index:300;
     }
     .modal.open{display:flex; align-items:flex-end}
@@ -230,6 +267,8 @@
       font-weight:800;
       cursor:pointer;
       font-size:12px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .chip.active{
       border-color: rgba(122,162,255,.65);
@@ -259,7 +298,7 @@
 
   <!-- Drawer -->
   <div class="drawerOverlay" id="drawerOverlay"></div>
-  <aside class="drawer" id="drawer">
+  <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="drawerTop">
       <div style="font-weight:900">Menú</div>
       <button class="btn small ghost" id="btnCloseMenu">Cerrar</button>
@@ -830,10 +869,12 @@
     function openDrawer(){
       el("drawer").classList.add("open");
       el("drawerOverlay").classList.add("open");
+      el("drawer").setAttribute("aria-hidden","false");
     }
     function closeDrawer(){
       el("drawer").classList.remove("open");
       el("drawerOverlay").classList.remove("open");
+      el("drawer").setAttribute("aria-hidden","true");
     }
 
     function setActiveNav(nav){
@@ -936,14 +977,12 @@
     }
 
     async function syncMonthNow(silent=true){
-      // Recarga estado actual (por si venimos de importar)
       txAll = await dbGetAll(STORE_TX);
       fixedAll = await dbGetAll(STORE_FIXED);
       msiAll = await dbGetAll(STORE_MSI);
       debtAll = await dbGetAll(STORE_DEBTS);
 
       const c1 = await syncFixedForMonth(true);
-      // refresca txAll antes de MSI para que el "exists" funcione bien
       txAll = await dbGetAll(STORE_TX);
       const c2 = await syncMSIForMonth(true);
 
@@ -1215,7 +1254,6 @@
       closeModal("modalFixed");
       await loadAll();
 
-      // si agregaste un fijo nuevo, lo sincronizamos para el mes actual
       await syncMonthNow(true);
     }
 
@@ -1330,7 +1368,6 @@
       closeModal("modalMSI");
       await loadAll();
 
-      // si agregaste un MSI nuevo, lo sincronizamos para el mes actual (si aplica)
       await syncMonthNow(true);
     }
 
@@ -1443,18 +1480,15 @@
         btnPay.textContent = d.status === "paid" ? "Pagada" : "Marcar pagado";
         btnPay.disabled = d.status === "paid";
         btnPay.onclick = async () => {
-          // 1) marcar deuda pagada
           d.status = "paid";
           d.paidAt = Date.now();
           await dbPut(STORE_DEBTS, d);
 
-          // 2) crear movimiento para que se refleje en el resumen mensual
           const mKey = currentMonthKey();
           const dateISO = todayISO();
           const method = d.method || "cash";
 
           if(d.type === "owe"){
-            // pagar (gasto)
             const tx = {
               id: uid(),
               type: "expense",
@@ -1472,7 +1506,6 @@
             };
             await dbPut(STORE_TX, tx);
           } else {
-            // dinero recuperado (lo metemos como monto negativo para que se refleje)
             const tx = {
               id: uid(),
               type: "expense",
@@ -1748,7 +1781,6 @@
         setActiveNav("navHome");
       };
 
-      // initial render
       renderHome();
     })();
   </script>
