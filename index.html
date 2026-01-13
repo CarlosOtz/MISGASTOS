@@ -6,8 +6,6 @@
   <meta name="theme-color" content="#0b1220" />
   <title>Mis Gastos</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- iOS install hint -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -47,13 +45,9 @@
       color:var(--muted); font-size:12px;
     }
     main{padding:14px; max-width:980px; margin:0 auto}
-    .grid{
-      display:grid; gap:12px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 820px){
-      .grid{grid-template-columns: 1.2fr .8fr}
-    }
+    .grid{display:grid; gap:12px; grid-template-columns: 1fr;}
+    @media (min-width: 820px){ .grid{grid-template-columns: 1.2fr .8fr} }
+
     .card{
       background: rgba(17,26,46,.80);
       border:1px solid var(--border);
@@ -66,10 +60,8 @@
       letter-spacing:.2px;
     }
     .card .content{padding:12px 14px 14px}
-    .big{
-      font-size:34px; font-weight:900; line-height:1.05;
-      letter-spacing:-.4px;
-    }
+
+    .big{font-size:34px; font-weight:900; line-height:1.05; letter-spacing:-.4px;}
     .sub{color:var(--muted); font-size:12px; margin-top:6px}
     .btn{
       border:1px solid var(--border);
@@ -93,8 +85,14 @@
       border-color: rgba(255,107,107,.35);
       color: var(--text);
     }
+    .btn.ok{
+      background: rgba(61,220,151,.12);
+      border-color: rgba(61,220,151,.35);
+      color: var(--text);
+    }
     .btn.small{padding:8px 10px; border-radius: 10px; font-size:12px}
     .btn.ghost{background: transparent}
+
     .input, select{
       width:100%;
       padding:10px 12px;
@@ -107,6 +105,7 @@
     label{display:block; font-size:12px; color:var(--muted); margin: 8px 0 6px}
     .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
     .three{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+
     .list{display:flex; flex-direction:column; gap:10px}
     .item{
       display:grid;
@@ -125,13 +124,74 @@
     }
     .amt{font-weight:900; font-size:16px}
     .meta{font-size:12px; color:var(--muted); margin-top:4px}
-    .muted{color:var(--muted)}
     .sep{height:1px; background: var(--border); margin:10px 0}
+    .hint{font-size:12px; color:var(--muted)}
+
+    .kpiRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .kpi{
+      flex:1;
+      min-width: 160px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.04);
+    }
+    .kpi .label{font-size:12px; color:var(--muted)}
+    .kpi .value{font-weight:900; margin-top:6px}
+
+    /* Drawer (menu plegable) */
+    .drawerOverlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      z-index:200;
+    }
+    .drawerOverlay.open{display:block}
+    .drawer{
+      position:fixed; top:0; left:0; height:100%;
+      width: 290px; max-width: 85vw;
+      background: rgba(17,26,46,.98);
+      border-right:1px solid var(--border);
+      box-shadow: var(--shadow);
+      transform: translateX(-102%);
+      transition: transform .18s ease;
+      z-index:210;
+      padding: 14px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .drawer.open{transform: translateX(0)}
+    .navBtn{
+      width:100%;
+      text-align:left;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+    }
+    .navBtn.active{
+      border-color: rgba(122,162,255,.65);
+      background: rgba(122,162,255,.12);
+    }
+    .navSub{font-size:12px; color:var(--muted); margin-top:4px; font-weight:600}
+    .drawerTop{display:flex; align-items:center; justify-content:space-between}
+    .hamburger{
+      width:40px; height:40px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+    }
+    .hamburger span{font-size:20px; line-height:0}
+
+    /* Modal */
     .modal{
       position:fixed; inset:0; display:none;
       background: rgba(0,0,0,.55);
       padding: 16px;
-      z-index:100;
+      z-index:300;
     }
     .modal.open{display:flex; align-items:flex-end}
     @media (min-width: 820px){
@@ -151,30 +211,24 @@
       border-bottom:1px solid var(--border);
       padding: 12px 14px;
     }
-    .panel header .title{font-size:16px}
     .panel .body{padding: 12px 14px 14px}
     .right{display:flex; justify-content:flex-end; gap:10px}
-    .hint{font-size:12px; color:var(--muted)}
-    .kpiRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .kpi{
-      flex:1;
-      min-width: 160px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:10px 12px;
-      background: rgba(255,255,255,.04);
-    }
-    .kpi .label{font-size:12px; color:var(--muted)}
-    .kpi .value{font-weight:900; margin-top:6px}
+
+    .hidden{display:none !important}
   </style>
 </head>
+
 <body>
   <header>
     <div class="row space">
       <div class="row">
-        <div class="title">Mis Gastos</div>
-        <div class="pill" id="monthLabel"></div>
+        <div class="hamburger" id="btnMenu" title="Menú"><span>☰</span></div>
+        <div>
+          <div class="title" id="headerTitle">Mis Gastos</div>
+          <div class="pill" id="monthLabel"></div>
+        </div>
       </div>
+
       <div class="row">
         <button class="btn small" id="btnExport">Exportar</button>
         <button class="btn small" id="btnImport">Importar</button>
@@ -183,89 +237,159 @@
     </div>
   </header>
 
-  <main>
-    <div class="grid">
-      <!-- Left -->
-      <section class="card">
-        <h2>Resumen del mes</h2>
-        <div class="content">
-          <div class="big" id="monthTotal">$0</div>
-          <div class="sub" id="monthSub">0 movimientos</div>
-
-          <div class="kpiRow">
-            <div class="kpi">
-              <div class="label">Efectivo</div>
-              <div class="value" id="kpiCash">$0</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Débito</div>
-              <div class="value" id="kpiDebit">$0</div>
-            </div>
-            <div class="kpi">
-              <div class="label">Crédito</div>
-              <div class="value" id="kpiCredit">$0</div>
-            </div>
-          </div>
-
-          <div class="sep"></div>
-
-          <div class="row" style="gap:12px">
-            <div style="flex:1; min-width:220px">
-              <label>Buscar (concepto)</label>
-              <input class="input" id="q" placeholder="Ej: uber, oxxo, comida..." />
-            </div>
-
-            <div style="flex:1; min-width:180px">
-              <label>Método</label>
-              <select id="fMethod">
-                <option value="">Todos</option>
-                <option value="cash">Efectivo</option>
-                <option value="debit">Débito</option>
-                <option value="credit">Crédito</option>
-              </select>
-            </div>
-
-            <div style="flex:1; min-width:180px">
-              <label>Fue de</label>
-              <select id="fOwner">
-                <option value="">Todos</option>
-                <option value="me">Yo</option>
-                <option value="mom">Mamá</option>
-                <option value="sis">Hermana</option>
-                <option value="partner">Pareja</option>
-                <option value="other">Otro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="sep"></div>
-
-          <div class="row space">
-            <div class="hint">Tip: todo es offline. Usa Exportar para guardar un respaldo.</div>
-            <button class="btn danger small" id="btnClearAll" title="Borra todo">Borrar todo</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right -->
-      <section class="card">
-        <h2>Movimientos (mes actual)</h2>
-        <div class="content">
-          <div class="list" id="list"></div>
-          <div class="hint" id="emptyHint" style="display:none; margin-top:10px">
-            Aún no hay movimientos. Dale a <b>+ Gasto</b>.
-          </div>
-        </div>
-      </section>
+  <!-- Drawer -->
+  <div class="drawerOverlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawerTop">
+      <div style="font-weight:900">Menú</div>
+      <button class="btn small ghost" id="btnCloseMenu">Cerrar</button>
     </div>
+
+    <button class="navBtn active" id="navHome">
+      Movimientos
+      <div class="navSub">Resumen mensual + lista</div>
+    </button>
+
+    <button class="navBtn" id="navFixed">
+      Gastos fijos
+      <div class="navSub">Netflix, Spotify, Teléfono…</div>
+    </button>
+
+    <button class="navBtn" id="navMSI">
+      Meses sin intereses
+      <div class="navSub">Cuotas y meses faltantes</div>
+    </button>
+
+    <div class="sep"></div>
+    <div class="hint">
+      Todo es offline. Si cambias de cel, usa <b>Exportar</b> y luego <b>Importar</b>.
+    </div>
+
+    <div style="margin-top:auto">
+      <button class="btn danger" id="btnClearAll" style="width:100%">Borrar todo</button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- VIEW: HOME -->
+    <section id="viewHome">
+      <div class="grid">
+        <section class="card">
+          <h2>Resumen del mes</h2>
+          <div class="content">
+            <div class="big" id="monthTotal">$0</div>
+            <div class="sub" id="monthSub">0 movimientos</div>
+
+            <div class="kpiRow">
+              <div class="kpi">
+                <div class="label">Efectivo</div>
+                <div class="value" id="kpiCash">$0</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Débito</div>
+                <div class="value" id="kpiDebit">$0</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Crédito</div>
+                <div class="value" id="kpiCredit">$0</div>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="row" style="gap:12px">
+              <div style="flex:1; min-width:220px">
+                <label>Buscar (concepto)</label>
+                <input class="input" id="q" placeholder="Ej: uber, oxxo, comida..." />
+              </div>
+
+              <div style="flex:1; min-width:180px">
+                <label>Método</label>
+                <select id="fMethod">
+                  <option value="">Todos</option>
+                  <option value="cash">Efectivo</option>
+                  <option value="debit">Débito</option>
+                  <option value="credit">Crédito</option>
+                </select>
+              </div>
+
+              <div style="flex:1; min-width:180px">
+                <label>Fue de</label>
+                <select id="fOwner">
+                  <option value="">Todos</option>
+                  <option value="me">Yo</option>
+                  <option value="mom">Mamá</option>
+                  <option value="sis">Hermana</option>
+                  <option value="partner">Pareja</option>
+                  <option value="other">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="row space">
+              <div class="hint">Tip: registra rápido con <b>+ Gasto</b>.</div>
+              <button class="btn ok small" id="btnGenFixedThisMonth" title="Genera los pagos fijos del mes como movimientos">
+                Generar fijos del mes
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Movimientos (mes actual)</h2>
+          <div class="content">
+            <div class="list" id="list"></div>
+            <div class="hint" id="emptyHint" style="display:none; margin-top:10px">
+              Aún no hay movimientos. Dale a <b>+ Gasto</b>.
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- VIEW: FIXED -->
+    <section id="viewFixed" class="hidden">
+      <section class="card">
+        <h2>Gastos fijos</h2>
+        <div class="content">
+          <div class="row space">
+            <div class="hint">Ej: Netflix, Spotify, Teléfono… (se pueden generar como movimiento cada mes)</div>
+            <button class="btn primary" id="btnAddFixed">+ Fijo</button>
+          </div>
+
+          <div class="sep"></div>
+          <div class="list" id="fixedList"></div>
+          <div class="hint" id="fixedEmpty" style="display:none;margin-top:10px">Aún no agregas gastos fijos.</div>
+        </div>
+      </section>
+    </section>
+
+    <!-- VIEW: MSI -->
+    <section id="viewMSI" class="hidden">
+      <section class="card">
+        <h2>Meses sin intereses (MSI)</h2>
+        <div class="content">
+          <div class="row space">
+            <div class="hint">Aquí llevas pagos mensuales y cuántos meses faltan.</div>
+            <button class="btn primary" id="btnAddMSI">+ MSI</button>
+          </div>
+
+          <div class="sep"></div>
+          <div class="list" id="msiList"></div>
+          <div class="hint" id="msiEmpty" style="display:none;margin-top:10px">Aún no agregas compras a meses.</div>
+        </div>
+      </section>
+    </section>
   </main>
 
-  <!-- Add Expense Modal -->
-  <div class="modal" id="modal">
+  <!-- Modal: Add Expense -->
+  <div class="modal" id="modalExpense">
     <div class="panel">
       <header class="row space">
         <div class="title">Agregar gasto</div>
-        <button class="btn small ghost" id="btnClose">Cerrar</button>
+        <button class="btn small ghost" id="btnCloseExpense">Cerrar</button>
       </header>
       <div class="body">
         <div class="two">
@@ -317,11 +441,100 @@
         <input class="input" id="note" placeholder="Ej: pagué con mi tarjeta, me lo regresan después..." />
 
         <div class="right" style="margin-top:12px">
-          <button class="btn" id="btnSave">Guardar</button>
+          <button class="btn" id="btnSaveExpense">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Fixed -->
+  <div class="modal" id="modalFixed">
+    <div class="panel">
+      <header class="row space">
+        <div class="title">Agregar gasto fijo</div>
+        <button class="btn small ghost" id="btnCloseFixed">Cerrar</button>
+      </header>
+      <div class="body">
+        <div class="two">
+          <div>
+            <label>Nombre</label>
+            <input class="input" id="fixedName" placeholder="Ej: Netflix" />
+          </div>
+          <div>
+            <label>Monto</label>
+            <input class="input" id="fixedAmount" inputmode="decimal" placeholder="Ej: 199" />
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label>Día de cobro</label>
+            <input class="input" id="fixedDay" type="number" min="1" max="31" placeholder="Ej: 10" />
+          </div>
+          <div>
+            <label>Método</label>
+            <select id="fixedMethod">
+              <option value="cash">Efectivo</option>
+              <option value="debit">Débito</option>
+              <option value="credit">Crédito</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="right" style="margin-top:12px">
+          <button class="btn" id="btnSaveFixed">Guardar</button>
         </div>
 
         <div class="hint" style="margin-top:10px">
-          * La fecha se pone sola (hoy), pero la puedes cambiar.
+          * Luego puedes darle “Generar fijos del mes” para que se agreguen como movimientos.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add MSI -->
+  <div class="modal" id="modalMSI">
+    <div class="panel">
+      <header class="row space">
+        <div class="title">Agregar MSI</div>
+        <button class="btn small ghost" id="btnCloseMSI">Cerrar</button>
+      </header>
+      <div class="body">
+        <label>Nombre</label>
+        <input class="input" id="msiName" placeholder="Ej: Celular" />
+
+        <div class="two">
+          <div>
+            <label>Pago mensual</label>
+            <input class="input" id="msiMonthly" inputmode="decimal" placeholder="Ej: 850" />
+          </div>
+          <div>
+            <label>Meses totales</label>
+            <input class="input" id="msiTotal" type="number" min="1" placeholder="Ej: 12" />
+          </div>
+        </div>
+
+        <div class="two" style="margin-top:6px">
+          <div>
+            <label>Meses pagados (inicial)</label>
+            <input class="input" id="msiPaid" type="number" min="0" placeholder="Ej: 0" />
+          </div>
+          <div>
+            <label>Método</label>
+            <select id="msiMethod">
+              <option value="credit">Crédito</option>
+              <option value="debit">Débito</option>
+              <option value="cash">Efectivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="right" style="margin-top:12px">
+          <button class="btn" id="btnSaveMSI">Guardar</button>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          * El botón “Pagar mes” agregará un movimiento de este mes y avanzará 1 mes pagado.
         </div>
       </div>
     </div>
@@ -342,89 +555,132 @@
     };
     const monthKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`; // YYYY-MM
     const currentMonthKey = () => monthKey(new Date());
+    const currentYearMonth = () => {
+      const d = new Date();
+      return { y: d.getFullYear(), m: d.getMonth()+1 };
+    };
 
-    const PERSON = {
-      me: "Yo",
-      mom: "Mamá",
-      sis: "Hermana",
-      partner: "Pareja",
-      other: "Otro"
+    const PERSON = { me:"Yo", mom:"Mamá", sis:"Hermana", partner:"Pareja", other:"Otro" };
+    const METHOD = { cash:"Efectivo", debit:"Débito", credit:"Crédito" };
+
+    const el = (id) => document.getElementById(id);
+    const parseAmount = (v) => {
+      const clean = String(v).replace(/[^\d.]/g,"");
+      const n = Number(clean);
+      return Number.isFinite(n) ? n : NaN;
     };
-    const METHOD = {
-      cash: "Efectivo",
-      debit: "Débito",
-      credit: "Crédito"
-    };
+    const uid = () => `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
     /**************
-     * IndexedDB
+     * IndexedDB (v2: tx + fixed + msi)
      **************/
-    const DB_NAME = "gastos_pwa_v1";
-    const DB_VER = 1;
-    const STORE = "tx";
+    const DB_NAME = "gastos_pwa_v2";
+    const DB_VER = 2;
+    const STORE_TX = "tx";
+    const STORE_FIXED = "fixed";
+    const STORE_MSI = "msi";
 
     let db;
 
     function openDB(){
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VER);
-        req.onupgradeneeded = (e) => {
+
+        req.onupgradeneeded = () => {
           const db = req.result;
-          if(!db.objectStoreNames.contains(STORE)){
-            const os = db.createObjectStore(STORE, { keyPath: "id" });
+
+          if(!db.objectStoreNames.contains(STORE_TX)){
+            const os = db.createObjectStore(STORE_TX, { keyPath: "id" });
             os.createIndex("by_date", "dateISO", { unique:false });
             os.createIndex("by_month", "month", { unique:false });
           }
+          if(!db.objectStoreNames.contains(STORE_FIXED)){
+            const os = db.createObjectStore(STORE_FIXED, { keyPath: "id" });
+            os.createIndex("by_active", "active", { unique:false });
+          }
+          if(!db.objectStoreNames.contains(STORE_MSI)){
+            const os = db.createObjectStore(STORE_MSI, { keyPath: "id" });
+            os.createIndex("by_active", "active", { unique:false });
+          }
         };
+
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       });
     }
 
-    function id(){
-      // simple unique id
-      return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    }
-
-    function txReadAll(){
+    function dbGetAll(store){
       return new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, "readonly").objectStore(STORE).getAll();
-        t.onsuccess = () => resolve(t.result || []);
-        t.onerror = () => reject(t.error);
+        const r = db.transaction(store, "readonly").objectStore(store).getAll();
+        r.onsuccess = () => resolve(r.result || []);
+        r.onerror = () => reject(r.error);
       });
     }
-
-    function txPut(obj){
+    function dbPut(store, obj){
       return new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, "readwrite").objectStore(STORE).put(obj);
-        t.onsuccess = () => resolve(true);
-        t.onerror = () => reject(t.error);
+        const r = db.transaction(store, "readwrite").objectStore(store).put(obj);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => reject(r.error);
       });
     }
-
-    function txDelete(id){
+    function dbDel(store, id){
       return new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, "readwrite").objectStore(STORE).delete(id);
-        t.onsuccess = () => resolve(true);
-        t.onerror = () => reject(t.error);
+        const r = db.transaction(store, "readwrite").objectStore(store).delete(id);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => reject(r.error);
       });
     }
-
-    function txClear(){
-      return new Promise((resolve, reject) => {
-        const t = db.transaction(STORE, "readwrite").objectStore(STORE).clear();
-        t.onsuccess = () => resolve(true);
-        t.onerror = () => reject(t.error);
-      });
+    function dbClearAll(){
+      return Promise.all([
+        new Promise((res, rej)=>{ const r=db.transaction(STORE_TX,"readwrite").objectStore(STORE_TX).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
+        new Promise((res, rej)=>{ const r=db.transaction(STORE_FIXED,"readwrite").objectStore(STORE_FIXED).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
+        new Promise((res, rej)=>{ const r=db.transaction(STORE_MSI,"readwrite").objectStore(STORE_MSI).clear(); r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error); }),
+      ]);
     }
 
     /**************
-     * UI State
+     * State
      **************/
-    let all = [];
+    let txAll = [];
+    let fixedAll = [];
+    let msiAll = [];
 
-    const el = (id) => document.getElementById(id);
+    /**************
+     * Drawer navigation
+     **************/
+    function openDrawer(){
+      el("drawer").classList.add("open");
+      el("drawerOverlay").classList.add("open");
+    }
+    function closeDrawer(){
+      el("drawer").classList.remove("open");
+      el("drawerOverlay").classList.remove("open");
+    }
 
+    function setActiveNav(nav){
+      const navs = ["navHome","navFixed","navMSI"];
+      navs.forEach(id => el(id).classList.toggle("active", id === nav));
+
+      el("viewHome").classList.toggle("hidden", nav !== "navHome");
+      el("viewFixed").classList.toggle("hidden", nav !== "navFixed");
+      el("viewMSI").classList.toggle("hidden", nav !== "navMSI");
+
+      const title =
+        nav === "navHome" ? "Mis Gastos" :
+        nav === "navFixed" ? "Gastos fijos" :
+        "Meses sin intereses";
+
+      el("headerTitle").textContent = title;
+      closeDrawer();
+
+      if(nav === "navFixed") renderFixed();
+      if(nav === "navMSI") renderMSI();
+      if(nav === "navHome") renderHome();
+    }
+
+    /**************
+     * Home (movimientos)
+     **************/
     function setMonthLabel(){
       const now = new Date();
       const label = now.toLocaleDateString("es-MX", { month:"long", year:"numeric" });
@@ -432,9 +688,7 @@
     }
 
     function computeMonthStats(items){
-      let total = 0;
-      let cash=0, debit=0, credit=0;
-
+      let total = 0, cash=0, debit=0, credit=0;
       for(const x of items){
         total += x.amount;
         if(x.method === "cash") cash += x.amount;
@@ -450,39 +704,28 @@
       const fOwner = el("fOwner").value;
       const mKey = currentMonthKey();
 
-      let items = all.filter(x => x.month === mKey);
+      let items = txAll.filter(x => x.month === mKey);
 
-      if(q){
-        items = items.filter(x => (x.concept || "").toLowerCase().includes(q));
-      }
-      if(fMethod){
-        items = items.filter(x => x.method === fMethod);
-      }
-      if(fOwner){
-        items = items.filter(x => x.owner === fOwner);
-      }
+      if(q) items = items.filter(x => (x.concept || "").toLowerCase().includes(q));
+      if(fMethod) items = items.filter(x => x.method === fMethod);
+      if(fOwner) items = items.filter(x => x.owner === fOwner);
 
-      // sort: newest first
       items.sort((a,b) => (b.dateISO + b.id).localeCompare(a.dateISO + a.id));
-
       return items;
     }
 
-    function render(){
+    function renderHome(){
       const items = applyFilters();
-
-      // KPIs based on current filters? (we'll use month total before filters for main, but keep it simple = filtered month)
       const stats = computeMonthStats(items);
+
       el("monthTotal").textContent = fmtMoney(stats.total);
       el("monthSub").textContent = `${items.length} movimiento${items.length===1?"":"s"}`;
-
       el("kpiCash").textContent = fmtMoney(stats.cash);
       el("kpiDebit").textContent = fmtMoney(stats.debit);
       el("kpiCredit").textContent = fmtMoney(stats.credit);
 
       const list = el("list");
       list.innerHTML = "";
-
       el("emptyHint").style.display = items.length ? "none" : "block";
 
       for(const x of items){
@@ -509,6 +752,13 @@
         t3.className = "tag";
         t3.textContent = `Fue de: ${PERSON[x.owner] || x.owner}`;
 
+        if(x.source){
+          const t4 = document.createElement("span");
+          t4.className = "tag";
+          t4.textContent = x.source === "fixed" ? "Fijo" : (x.source === "msi" ? "MSI" : x.source);
+          top.appendChild(t4);
+        }
+
         top.appendChild(concept);
         top.appendChild(t1);
         top.appendChild(t2);
@@ -534,8 +784,8 @@
         del.textContent = "Eliminar";
         del.onclick = async () => {
           if(confirm("¿Eliminar este movimiento?")){
-            await txDelete(x.id);
-            await load();
+            await dbDel(STORE_TX, x.id);
+            await loadAll();
           }
         };
 
@@ -545,31 +795,8 @@
 
         div.appendChild(left);
         div.appendChild(right);
-
         list.appendChild(div);
       }
-    }
-
-    async function load(){
-      all = await txReadAll();
-      render();
-    }
-
-    /**************
-     * Modal
-     **************/
-    function openModal(){
-      el("modal").classList.add("open");
-    }
-    function closeModal(){
-      el("modal").classList.remove("open");
-    }
-
-    function parseAmount(v){
-      // allow "1,234.50"
-      const clean = String(v).replace(/[^\d.]/g,"");
-      const n = Number(clean);
-      return Number.isFinite(n) ? n : NaN;
     }
 
     async function saveExpense(){
@@ -581,19 +808,14 @@
       const owner = el("owner").value;
       const note = el("note").value.trim();
 
-      if(!Number.isFinite(amount) || amount <= 0){
-        alert("Pon un monto válido (mayor a 0).");
-        return;
-      }
-      if(!dateISO){
-        alert("Selecciona una fecha.");
-        return;
-      }
+      if(!Number.isFinite(amount) || amount <= 0){ alert("Pon un monto válido (mayor a 0)."); return; }
+      if(!dateISO){ alert("Selecciona una fecha."); return; }
 
       const d = new Date(dateISO + "T00:00:00");
       const obj = {
-        id: id(),
-        type: "expense",         // futuro: fixed, msi, debt, etc.
+        id: uid(),
+        type: "expense",
+        source: "manual",
         amount,
         concept,
         dateISO,
@@ -605,9 +827,8 @@
         createdAt: Date.now()
       };
 
-      await txPut(obj);
+      await dbPut(STORE_TX, obj);
 
-      // reset
       el("amount").value = "";
       el("concept").value = "";
       el("note").value = "";
@@ -616,20 +837,333 @@
       el("owner").value = "me";
       el("date").value = todayISO();
 
-      closeModal();
-      await load();
+      closeModal("modalExpense");
+      await loadAll();
+    }
+
+    /**************
+     * Fixed expenses
+     **************/
+    function renderFixed(){
+      const list = el("fixedList");
+      list.innerHTML = "";
+      const active = fixedAll.filter(x => x.active !== false);
+      el("fixedEmpty").style.display = active.length ? "none" : "block";
+
+      for(const f of active){
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const left = document.createElement("div");
+        const top = document.createElement("div");
+        top.className = "top";
+
+        const name = document.createElement("div");
+        name.style.fontWeight = "900";
+        name.textContent = f.name;
+
+        const t1 = document.createElement("span");
+        t1.className = "tag";
+        t1.textContent = `Día: ${f.day}`;
+
+        const t2 = document.createElement("span");
+        t2.className = "tag";
+        t2.textContent = METHOD[f.method] || f.method;
+
+        top.appendChild(name);
+        top.appendChild(t1);
+        top.appendChild(t2);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = "Se puede generar como movimiento del mes con un botón.";
+
+        left.appendChild(top);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.style.textAlign = "right";
+
+        const amt = document.createElement("div");
+        amt.className = "amt";
+        amt.textContent = fmtMoney(f.amount);
+
+        const del = document.createElement("button");
+        del.className = "btn small danger";
+        del.textContent = "Eliminar";
+        del.onclick = async () => {
+          if(confirm(`¿Eliminar "${f.name}"?`)){
+            await dbDel(STORE_FIXED, f.id);
+            await loadAll();
+            renderFixed();
+          }
+        };
+
+        right.appendChild(amt);
+        right.appendChild(document.createElement("div")).style.height = "8px";
+        right.appendChild(del);
+
+        div.appendChild(left);
+        div.appendChild(right);
+        list.appendChild(div);
+      }
+    }
+
+    async function saveFixed(){
+      const name = el("fixedName").value.trim();
+      const amount = parseAmount(el("fixedAmount").value);
+      const day = Number(el("fixedDay").value);
+      const method = el("fixedMethod").value;
+
+      if(!name){ alert("Pon un nombre."); return; }
+      if(!Number.isFinite(amount) || amount <= 0){ alert("Monto inválido."); return; }
+      if(!Number.isFinite(day) || day < 1 || day > 31){ alert("Día inválido (1-31)."); return; }
+
+      const obj = {
+        id: uid(),
+        name,
+        amount,
+        day,
+        method,
+        active: true,
+        createdAt: Date.now()
+      };
+
+      await dbPut(STORE_FIXED, obj);
+
+      el("fixedName").value = "";
+      el("fixedAmount").value = "";
+      el("fixedDay").value = "";
+      el("fixedMethod").value = "cash";
+
+      closeModal("modalFixed");
+      await loadAll();
+      renderFixed();
+    }
+
+    function txExistsForFixedThisMonth(fixedId, mKey){
+      return txAll.some(t => t.source === "fixed" && t.refId === fixedId && t.month === mKey);
+    }
+
+    async function generateFixedThisMonth(){
+      const mKey = currentMonthKey();
+      const { y, m } = currentYearMonth();
+
+      let created = 0;
+
+      for(const f of fixedAll.filter(x => x.active !== false)){
+        if(txExistsForFixedThisMonth(f.id, mKey)) continue;
+
+        const day = Math.min(Math.max(f.day,1), 28) + (f.day > 28 ? 0 : 0); // simple iOS-safe (evita días raros)
+        const dateISO = `${y}-${pad2(m)}-${pad2(Math.min(f.day, 28))}`;
+
+        const obj = {
+          id: uid(),
+          type: "expense",
+          source: "fixed",
+          refId: f.id,
+          amount: f.amount,
+          concept: f.name,
+          dateISO,
+          month: mKey,
+          method: f.method,
+          payer: "me",
+          owner: "me",
+          note: "Generado desde Gastos fijos",
+          createdAt: Date.now()
+        };
+
+        await dbPut(STORE_TX, obj);
+        created++;
+      }
+
+      await loadAll();
+      alert(created ? `Listo: se generaron ${created} fijo(s) para este mes.` : "No se generó nada (ya estaban generados o no hay fijos).");
+      renderHome();
+    }
+
+    /**************
+     * MSI
+     **************/
+    function renderMSI(){
+      const list = el("msiList");
+      list.innerHTML = "";
+      const active = msiAll.filter(x => x.active !== false);
+      el("msiEmpty").style.display = active.length ? "none" : "block";
+
+      for(const msi of active){
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const left = document.createElement("div");
+        const top = document.createElement("div");
+        top.className = "top";
+
+        const name = document.createElement("div");
+        name.style.fontWeight = "900";
+        name.textContent = msi.name;
+
+        const remaining = Math.max(0, msi.totalMonths - msi.paidMonths);
+
+        const t1 = document.createElement("span");
+        t1.className = "tag";
+        t1.textContent = `Pagados: ${msi.paidMonths}/${msi.totalMonths}`;
+
+        const t2 = document.createElement("span");
+        t2.className = "tag";
+        t2.textContent = `Faltan: ${remaining}`;
+
+        const t3 = document.createElement("span");
+        t3.className = "tag";
+        t3.textContent = METHOD[msi.method] || msi.method;
+
+        top.appendChild(name);
+        top.appendChild(t1);
+        top.appendChild(t2);
+        top.appendChild(t3);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = "“Pagar mes” agrega el movimiento del mes y avanza el contador.";
+
+        left.appendChild(top);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.style.textAlign = "right";
+
+        const amt = document.createElement("div");
+        amt.className = "amt";
+        amt.textContent = fmtMoney(msi.monthly);
+
+        const pay = document.createElement("button");
+        pay.className = "btn small ok";
+        pay.textContent = "Pagar mes";
+        pay.disabled = remaining <= 0;
+        pay.onclick = async () => {
+          await payMSIMonth(msi.id);
+        };
+
+        const del = document.createElement("button");
+        del.className = "btn small danger";
+        del.textContent = "Eliminar";
+        del.onclick = async () => {
+          if(confirm(`¿Eliminar "${msi.name}"?`)){
+            await dbDel(STORE_MSI, msi.id);
+            await loadAll();
+            renderMSI();
+          }
+        };
+
+        right.appendChild(amt);
+        right.appendChild(document.createElement("div")).style.height = "8px";
+        right.appendChild(pay);
+        right.appendChild(document.createElement("div")).style.height = "8px";
+        right.appendChild(del);
+
+        div.appendChild(left);
+        div.appendChild(right);
+        list.appendChild(div);
+      }
+    }
+
+    async function saveMSI(){
+      const name = el("msiName").value.trim();
+      const monthly = parseAmount(el("msiMonthly").value);
+      const totalMonths = Number(el("msiTotal").value);
+      const paidMonths = Number(el("msiPaid").value || 0);
+      const method = el("msiMethod").value;
+
+      if(!name){ alert("Pon un nombre."); return; }
+      if(!Number.isFinite(monthly) || monthly <= 0){ alert("Pago mensual inválido."); return; }
+      if(!Number.isFinite(totalMonths) || totalMonths <= 0){ alert("Meses totales inválidos."); return; }
+      if(!Number.isFinite(paidMonths) || paidMonths < 0 || paidMonths > totalMonths){ alert("Meses pagados inválidos."); return; }
+
+      const obj = {
+        id: uid(),
+        name,
+        monthly,
+        totalMonths,
+        paidMonths,
+        method,
+        active: true,
+        createdAt: Date.now()
+      };
+
+      await dbPut(STORE_MSI, obj);
+
+      el("msiName").value = "";
+      el("msiMonthly").value = "";
+      el("msiTotal").value = "";
+      el("msiPaid").value = "";
+      el("msiMethod").value = "credit";
+
+      closeModal("modalMSI");
+      await loadAll();
+      renderMSI();
+    }
+
+    function txExistsForMSIThisMonth(msiId, mKey){
+      return txAll.some(t => t.source === "msi" && t.refId === msiId && t.month === mKey);
+    }
+
+    async function payMSIMonth(msiId){
+      const mKey = currentMonthKey();
+      const msi = msiAll.find(x => x.id === msiId);
+      if(!msi) return;
+
+      if(txExistsForMSIThisMonth(msiId, mKey)){
+        alert("Ya registraste el pago de este MSI este mes.");
+        return;
+      }
+
+      if(msi.paidMonths >= msi.totalMonths){
+        alert("Ya está completado.");
+        return;
+      }
+
+      const dateISO = todayISO();
+
+      // 1) create movement
+      const tx = {
+        id: uid(),
+        type: "expense",
+        source: "msi",
+        refId: msiId,
+        amount: msi.monthly,
+        concept: `${msi.name} (MSI)`,
+        dateISO,
+        month: mKey,
+        method: msi.method,
+        payer: "me",
+        owner: "me",
+        note: `Pago MSI ${msi.paidMonths+1}/${msi.totalMonths}`,
+        createdAt: Date.now()
+      };
+      await dbPut(STORE_TX, tx);
+
+      // 2) update MSI paidMonths
+      msi.paidMonths += 1;
+      await dbPut(STORE_MSI, msi);
+
+      await loadAll();
+      renderMSI();
+      renderHome();
     }
 
     /**************
      * Export / Import
      **************/
     async function exportBackup(){
-      const data = await txReadAll();
       const payload = {
         app: "MisGastosPWA",
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
-        data
+        data: {
+          tx: await dbGetAll(STORE_TX),
+          fixed: await dbGetAll(STORE_FIXED),
+          msi: await dbGetAll(STORE_MSI)
+        }
       };
 
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
@@ -645,52 +1179,67 @@
       URL.revokeObjectURL(url);
     }
 
-    function importBackup(){
-      el("file").click();
-    }
+    function importBackup(){ el("file").click(); }
 
     async function handleImportFile(file){
       const text = await file.text();
       let payload;
-      try{
-        payload = JSON.parse(text);
-      }catch{
-        alert("Ese archivo no es JSON válido.");
+      try{ payload = JSON.parse(text); }
+      catch{ alert("Ese archivo no es JSON válido."); return; }
+
+      const data = payload?.data;
+      if(!data || !Array.isArray(data.tx) || !Array.isArray(data.fixed) || !Array.isArray(data.msi)){
+        alert("Respaldo inválido (faltan tx/fixed/msi).");
         return;
       }
 
-      if(!payload || !Array.isArray(payload.data)){
-        alert("Respaldo inválido (no trae 'data').");
-        return;
-      }
-
-      const ok = confirm(
-        "Esto reemplazará tus datos actuales por los del respaldo.\n\n" +
-        "¿Quieres continuar?"
-      );
+      const ok = confirm("Esto reemplazará tus datos actuales por los del respaldo.\n\n¿Continuar?");
       if(!ok) return;
 
-      await txClear();
-      for(const obj of payload.data){
-        // validación mínima
+      await dbClearAll();
+
+      for(const obj of data.tx){
         if(obj && obj.id && obj.dateISO && typeof obj.amount === "number"){
-          await txPut(obj);
+          await dbPut(STORE_TX, obj);
         }
       }
-      await load();
+      for(const obj of data.fixed){
+        if(obj && obj.id && obj.name && typeof obj.amount === "number"){
+          await dbPut(STORE_FIXED, obj);
+        }
+      }
+      for(const obj of data.msi){
+        if(obj && obj.id && obj.name && typeof obj.monthly === "number"){
+          await dbPut(STORE_MSI, obj);
+        }
+      }
+
+      await loadAll();
       alert("Listo: respaldo importado.");
+      renderHome();
     }
 
     /**************
-     * Service Worker registration (offline shell)
+     * Modal helpers
+     **************/
+    function openModal(id){ el(id).classList.add("open"); }
+    function closeModal(id){ el(id).classList.remove("open"); }
+
+    /**************
+     * Load all + render current view
+     **************/
+    async function loadAll(){
+      txAll = await dbGetAll(STORE_TX);
+      fixedAll = await dbGetAll(STORE_FIXED);
+      msiAll = await dbGetAll(STORE_MSI);
+    }
+
+    /**************
+     * Service Worker
      **************/
     async function registerSW(){
       if("serviceWorker" in navigator){
-        try{
-          await navigator.serviceWorker.register("./sw.js");
-        }catch(e){
-          // no pasa nada si falla; la app sigue funcionando
-        }
+        try{ await navigator.serviceWorker.register("./sw.js"); }catch(e){}
       }
     }
 
@@ -699,25 +1248,47 @@
      **************/
     (async function init(){
       setMonthLabel();
+
       el("date").value = todayISO();
 
       db = await openDB();
-      await load();
+      await loadAll();
       await registerSW();
 
-      // events
-      el("btnAdd").onclick = openModal;
-      el("btnClose").onclick = closeModal;
-      el("modal").addEventListener("click", (e) => {
-        if(e.target === el("modal")) closeModal();
-      });
+      // Drawer
+      el("btnMenu").onclick = openDrawer;
+      el("btnCloseMenu").onclick = closeDrawer;
+      el("drawerOverlay").onclick = closeDrawer;
 
-      el("btnSave").onclick = saveExpense;
+      el("navHome").onclick = () => setActiveNav("navHome");
+      el("navFixed").onclick = () => setActiveNav("navFixed");
+      el("navMSI").onclick = () => setActiveNav("navMSI");
 
-      el("q").addEventListener("input", render);
-      el("fMethod").addEventListener("change", render);
-      el("fOwner").addEventListener("change", render);
+      // Home events
+      el("btnAdd").onclick = () => openModal("modalExpense");
+      el("btnCloseExpense").onclick = () => closeModal("modalExpense");
+      el("modalExpense").addEventListener("click", (e)=>{ if(e.target === el("modalExpense")) closeModal("modalExpense"); });
+      el("btnSaveExpense").onclick = saveExpense;
 
+      el("q").addEventListener("input", renderHome);
+      el("fMethod").addEventListener("change", renderHome);
+      el("fOwner").addEventListener("change", renderHome);
+
+      el("btnGenFixedThisMonth").onclick = generateFixedThisMonth;
+
+      // Fixed modal
+      el("btnAddFixed").onclick = () => openModal("modalFixed");
+      el("btnCloseFixed").onclick = () => closeModal("modalFixed");
+      el("modalFixed").addEventListener("click", (e)=>{ if(e.target === el("modalFixed")) closeModal("modalFixed"); });
+      el("btnSaveFixed").onclick = saveFixed;
+
+      // MSI modal
+      el("btnAddMSI").onclick = () => openModal("modalMSI");
+      el("btnCloseMSI").onclick = () => closeModal("modalMSI");
+      el("modalMSI").addEventListener("click", (e)=>{ if(e.target === el("modalMSI")) closeModal("modalMSI"); });
+      el("btnSaveMSI").onclick = saveMSI;
+
+      // Export/Import
       el("btnExport").onclick = exportBackup;
       el("btnImport").onclick = importBackup;
 
@@ -727,12 +1298,18 @@
         if(f) await handleImportFile(f);
       });
 
+      // Clear all
       el("btnClearAll").onclick = async () => {
-        const ok = confirm("Esto borra TODOS tus datos en este iPhone.\n¿Seguro?");
+        const ok = confirm("Esto borra TODO (movimientos, fijos y MSI) en este dispositivo.\n¿Seguro?");
         if(!ok) return;
-        await txClear();
-        await load();
+        await dbClearAll();
+        await loadAll();
+        setActiveNav("navHome");
+        renderHome();
       };
+
+      // Initial render
+      renderHome();
     })();
   </script>
 </body>
